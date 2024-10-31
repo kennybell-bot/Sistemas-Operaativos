@@ -1,13 +1,11 @@
 import random
 
 if __name__=='__main__':
-    # flags to indicate if each thread is in
-    # queue to enter its critical section
-    thread1wantstoenter = False
+    thread1wantstoenter = True
     thread2wantstoenter = True
     completed = False
     
-    #startThreads()
+
 
 
 def Thread1():
@@ -18,22 +16,19 @@ def Thread1():
         thread1wantstoenter = True
 
 
-        # entry section
-        # wait until thread2 wants to enter
-        # its critical section
+
         while (thread2wantstoenter == True):
+            print("El proceso 2 quiere entrar en la seccion critica, espere...")
             pass
         
 
-        # critical section
 
-        # exit section
-        # indicate thread1 has completed
-        # its critical section
+
+
         thread1wantstoenter = False
+        print("El proceso 1 ha salido de la seccion critica")
         completed = True
 
-        # remainder section
 
 
 def Thread2():
@@ -44,20 +39,17 @@ def Thread2():
         doWhile=True
         thread2wantstoenter = True
 
-        # entry section
-        # wait until thread1 wants to enter
-        # its critical section
         while (thread1wantstoenter == True):
+            print("El proceso 1 quiere entrar en la seccion critica, espere...")
             pass
 
-        # critical section
 
-        # exit section
-        # indicate thread2 has completed
-        # its critical section
+
+
         thread2wantstoenter = False
+        print("El proceso 2 ha salido de la seccion critica")
         completed = True
-        # remainder section
+        
 
 
 Thread1()
