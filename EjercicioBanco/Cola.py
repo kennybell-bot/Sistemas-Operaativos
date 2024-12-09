@@ -9,6 +9,7 @@ class Cola:
 
     def encolar(self, item):
         self.items.append(item)
+        self.actualizarReferencias()
 
     def desencolar(self):
         if not self.esta_vacia():

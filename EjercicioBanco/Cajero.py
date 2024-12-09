@@ -10,11 +10,10 @@ class Cajero():
         if ((self.siguiente.getCantidadTransacciones()-5)>0):
             print("--------")
             print(f"Atendiendo {self.siguiente.getId()}")
-            reloj.sleep(0.5)
+            #reloj.sleep(1)
             self.siguiente.setCantidadTransacciones(self.siguiente.getCantidadTransacciones()-5)
             cola.desencolar()
             cola.encolar(self.siguiente)
-            cola.actualizarReferencias()
         else:
             print("--------")
             print(f"Atendiendo {self.siguiente.getId()}")
