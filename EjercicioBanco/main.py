@@ -32,14 +32,20 @@ def generarescenario():
 
 def avanzar():
     #while(not cola.esta_vacia()):
-    cajero.atenderClientes(cola)
-    actualizarPantalla()
     var1 = StringVar()
-    var1.set(cadenatotal)
-    label4.configure(textvariable=var1)
     var2 = StringVar()
-    var2.set(f"Atendiendo {cajero.siguiente.getId()}")
-    label2.configure(textvariable=var2)
+    if(not cola.esta_vacia()):
+        cajero.atenderClientes(cola)
+        actualizarPantalla()
+        var1.set(cadenatotal)
+        label4.configure(textvariable=var1)
+        var2.set(f"Cajero atendiendo {cajero.siguiente.getId()}")
+        label2.configure(textvariable=var2)
+    else:
+        var1.set("La fila esta vacia")
+        label4.configure(textvariable=var1)
+        var2.set("Cajero mamando gallo...")
+        label2.configure(textvariable=var2)
     root.after(2000, avanzar)
 
 
