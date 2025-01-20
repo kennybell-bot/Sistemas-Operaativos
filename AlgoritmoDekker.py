@@ -43,9 +43,6 @@ def Thread2():
             print("El proceso 1 quiere entrar en la seccion critica, espere...")
             pass
 
-
-
-
         thread2wantstoenter = False
         print("El proceso 2 ha salido de la seccion critica")
         completed = True
