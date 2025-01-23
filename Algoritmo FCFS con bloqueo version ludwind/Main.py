@@ -3,53 +3,48 @@ from Proceso import Proceso
 import random
 import plotly.figure_factory as ff
 from tkinter import *
+from tkinter import ttk
 import copy
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
 import threading
+from PIL import Image, ImageTk
+import pandas as pd
 
+root = Tk()
 #Cola de procesos
 lista_procesos = Cola()
 tiempo = 0
+nom =0
 bloqueo = random.randint(1, 10)
 tabla = "Historia de procesos\n"
 procesoAnterior = None
 procesosAGraficar = []
+# Lista para almacenar los datos del diagrama de Gantt
+gantt_data = []
+hisotricoBloqueados = "Historico Procesos bloqueados: "
 
 #Generación aleatoria de procesos
 def generarProcesos():
-    for i in range(random.randint(5, 10)):
+    global tiempo
+    global nom
+
+    for i in range(random.randint(1, 10)):
 
         #Generación del primer proceso
         if i==0:
-            procesoActual = Proceso(str(i), 0, random.randint(1, 10))
+            procesoActual = Proceso(str(nom), tiempo, random.randint(1, 10))
         else:
-            procesoActual = Proceso(str(i), random.randint(procesoAnterior.getTiempoLLegada(), procesoAnterior.getTiempoLLegada()+5), random.randint(1, 10))
+            procesoActual = Proceso(str(nom), random.randint(procesoAnterior.getTiempoLLegada(), procesoAnterior.getTiempoLLegada()+5), random.randint(1, 10))
         lista_procesos.encolar(procesoActual)
 
         procesoAnterior = procesoActual
-
-def generarDiagrama():
-
-    df = []
-
-    for i in procesosAGraficar:
-        print(i)
-        grafica = dict(Task=i.getNombre(), Start=i.getTiempoInicio(), Finish=i.getTiempoFinalizacion(), Resource='Complete')
-        df.append(grafica)    
-
-    colors = {'Not Started': 'rgb(220, 0, 0)',
-            'Incomplete': (1, 0.9, 0.16),
-            'Complete': 'rgb(0, 255, 100)'}
-
-    fig = ff.create_gantt(df, colors=colors, index_col='Resource', show_colorbar=True,group_tasks=True)
-    fig.update_layout(xaxis=dict(type='linear', title='Tiempo'))
-
-    fig.show()
+        nom=nom+1
 
 #Funcion algoritmo FCFS
 def atenderProcesos():
 
+    global hisotricoBloqueados
     global tiempo
     global tabla
     global procesoAnterior
@@ -102,8 +97,8 @@ def atenderProcesos():
             procesoActivo.setEstado("Listo")
             #Encolar proceso
             lista_procesos.encolar(lista_procesos.desencolar())
-            hisotricoBloqueados = "Historico Procesos bloqueados\n"
             hisotricoBloqueados += procesoActivo.getNombre()
+            hisotricoBloqueados += "-"
             labelProcesosBloqueados.config(text=hisotricoBloqueados)
             tabla += str(procesoActivo)
             labelTabla.config(text=tabla)
@@ -136,7 +131,35 @@ def atenderProcesos():
 
 generarProcesos()
 
-root = Tk()
+def generarDiagrama():
+
+    # Limpiar el canvas anterior si existe
+    for widget in frame_diagrama.winfo_children():
+        widget.destroy()
+    
+    gantt_data.clear()
+
+    for i in procesosAGraficar:
+        print(i)
+        gantt_data.append(dict(Task=f"Proceso {i.nombre}", Start=i.getTiempoInicio(), Finish=i.getTiempoFinalizacion()))
+
+    global ax,canvas,df
+
+    df = pd.DataFrame(gantt_data)
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    for i, row in df.iterrows():
+        ax.barh(row['Task'], row['Finish'] - row['Start'], left=row['Start'], color='skyblue')
+
+    ax.set_xlabel('Tiempo')
+    ax.set_title('Diagrama de Gantt de Procesos')
+    ax.grid(True)
+
+    # Crear un canvas de matplotlib y agregarlo a la ventana de Tkinter
+    canvas = FigureCanvasTkAgg(fig, master=root)
+    canvas.draw()
+    canvas.get_tk_widget().pack(side=TOP, fill=BOTH, expand=1)
+
 hilo = threading.Thread(target=generarProcesos)
 def generacionProceosos():
     tabla = "Historia de procesos\n"
@@ -158,6 +181,10 @@ btonDiagrama = Button(root, text="Generar diagrama", command=generarDiagrama)
 btonDiagrama.pack()
 botonGenerar = Button(root, text="Generar procesos", command=generacionProceosos)
 botonGenerar.pack()
+
+# Frame para el diagrama de Gantt
+frame_diagrama = ttk.Frame(root, padding="10 10 10 10", style='TFrame')
+frame_diagrama.pack(fill=BOTH, expand=True)
 
 
 root.geometry("800x600")
